@@ -1,5 +1,6 @@
 package com.questao.avaliacao04.services;
 
+import com.questao.avaliacao04.exceptions.ProdutoExistenteException;
 import com.questao.avaliacao04.exceptions.ProdutoNaoEncontradoException;
 import com.questao.avaliacao04.models.ProdutoModel;
 import com.questao.avaliacao04.repositories.ProdutoRepository;
@@ -32,6 +33,13 @@ public class ProdutoService {
 //    }
 
     public ProdutoModel insert(ProdutoModel produto){
+
+        Optional<ProdutoModel> nomeProduto = repository.findByNomeProduto(produto.getNomeProduto());
+        if(nomeProduto.isPresent()){
+            throw new ProdutoExistenteException("Este produto ja existe, tente cadastrar outro");
+        }
+
+
         ProdutoModel unit = new ProdutoModel();
 
         unit.setIdProduto(produto.getIdProduto());

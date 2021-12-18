@@ -35,27 +35,10 @@ public class ProdutoControllerTest {
     @Autowired
     private ProdutoController controller;
 
-//    @InjectMocks
-//    private ProdutoController produtoController;
-//
-//    @Mock
-//    private ProdutoService produtoService;
-//
-//    @Mock
-//    private ProdutoRepository produtoRepository;
-//
-//    @BeforeEach
-//    public void setup() {
-//        this.mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-//    }
-//
-//    @BeforeEach
-//    void setUp() throws Exception {
-//
-//        when(produtoService.insert(ArgumentMatchers.any()))
-//                .thenReturn(ProdutoCreator.createNewProduto());
-//    }
-
+    @BeforeEach
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+    }
 
     @Test
     @DisplayName("Retornar status code 404 quando buscar nomeProduto inexistente")
@@ -64,11 +47,25 @@ public class ProdutoControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
-//    @Test
-//    @DisplayName("Verifica se tem algum nome de produto duplicado")
-//    public void verifyCreate() {
-//        when(ProdutoRepository.findByNomeProduto(ArgumentMatchers.anyString())).thenReturn(Optional.of(ProdutoCreator.createNewProduto()));
-//        assertThatExceptionOfType(Exception.class).isThrownBy(() -> produtoService.insert(ProdutoCreator.createNewProduto()));
-//    }
+    @Test
+    @DisplayName("Deve retornar 422 quando criar contato com email existente")
+    public void deveRetornar422_QuandoCriarProdutoExistente() throws Exception {
+        ProdutoModel produtoExistente = new ProdutoModel(1L, "nomeTest1", "estoqueTest", "vendaTest", "compraTeste", null , null);
+        ProdutoModel produto = new ProdutoModel(1L, "nomeTest1", "estoqueTest2", "vendaTest2", "compraTeste2", null , null);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        String json = mapper.writeValueAsString(produtoExistente);
+        String json2 = mapper.writeValueAsString(produto);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/produtos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/produtos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isUnprocessableEntity());
+    }
 
 }
